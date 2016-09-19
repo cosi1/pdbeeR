@@ -1,0 +1,9 @@
+Package: pdbeeR
+Title: R package for manipulating Protein Data Bank files
+Version: 0.0.0.9000
+Authors@R: person("Paweł", "Piątkowski", email = "pawel.piatkowski@posteo.net", role = c("aut", "cre"))
+Description: pdbeeR provides functions for analyzing, processing and visualization of PDB (Protein Data Bank) data.
+Depends: R (>= 3.3.1)
+License: MIT License
+Encoding: UTF-8
+LazyData: true
