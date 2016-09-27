@@ -1,15 +1,15 @@
-## pdbeeR - tools for manipulating PDB data
-## version 0.0.0.9000
-## author: Paweł Piątkowski <pawel.piatkowski@posteo.net>
-
-
 ##
-# Reads a .pdb file into a pdb object.
-# Structure:
-#   $header - data frame with PDB header
-#   $crystal - data frame with crystallographic data
-#   $coord  - data frame with coordinate data
-#   $footer - data frame with PDB footer
+#' Read PDB file
+#'
+#' Reads a .pdb file into a pdb object.
+#'
+#' @param filename name of the input .pdb file
+#' @return pdb object (see description below)
+#' @field header data frame with PDB header
+#' @field crystal data frame with crystallographic data
+#' @field coord data frame with coordinate data
+#' @field footer data frame with PDB footer
+#' @export
 ##
 read.pdb = function(filename) {
   f = file(filename, open = "r")
@@ -88,14 +88,24 @@ read.pdb = function(filename) {
     names(pdb_data$footer) = c("rec_name", "value")
   }
 
+  class(pdb_data) = "pdb"
   pdb_data
 }
 
 
 ##
-# Writes a pdb object to a file.
+#' Write PDB file
+#'
+#' Writes a pdb object to a file.
+#'
+#' @param data pdb object
+#' @param filename name of the output .pdb file
+#' @export
 ##
 write.pdb = function(data, filename) {
+  if (class(data) != "pdb") {
+    stop("`data` must be a pdb object.")
+  }
   f = file(filename, open = "w")
   on.exit(close(f))
 
@@ -142,127 +152,3 @@ write.pdb = function(data, filename) {
     writeLines(apply(data$footer, 1, paste0, collapse = ""), f)
   }
 }
-
-
-##
-# Returns resSeq IDs for a coord object.
-# Example:
-#   getResSeq(selectRecords(pdb, chainID = "B"))
-##
-getResSeq = function(coord) {
-  unique(coord$resSeq)
-}
-
-
-##
-# Returns the sequence of a coord object (as a vector).
-# Example:
-#   getSequence(selectRecords(pdb, chainID = "A"))
-##
-getSequence = function(coord) {
-  coord[!duplicated(coord$resSeq),]$resName
-}
-
-
-##
-# Converts sequence vector to a sequence string in FASTA format
-# Input:
-#   sequence - vector containing valid residue codes
-#   name - name for the output sequence
-#   wrapAt - column, at which the sequence is wrapped
-#     (set to 0 for unwrapped output)
-# Example:
-#   chainB = selectRecords(pdb, chainID = "B")
-#   sequence = getSequence(chainB)
-#   seqToFasta(sequence)
-##
-seqToFasta = function(sequence, name = "Sequence", wrapAt = 80) {
-  longCodes = c("ALA", "CYS", "ASP", "GLU", "PHE",
-                "GLY", "HIS", "ILE", "LYS", "LEU",
-                "MET", "ASN", "PRO", "GLN", "ARG",
-                "SER", "THR", "VAL", "TRP", "TYR",
-                "HOH")
-  shortCodes = c("A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
-                 "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y",
-                 "")
-
-  mapply(function(long, short) {
-    sequence <<- gsub(long, short, sequence)
-  }, longCodes, shortCodes)
-  sequence[nchar(sequence) > 1] = "x"
-  str_seq = paste0(sequence, collapse = "")
-  if (wrapAt > 0) {
-    chunks = sapply(seq(1, nchar(str_seq), wrapAt),
-      function(i) substr(str_seq, i, i + wrapAt - 1))
-    str_seq = paste0(chunks, collapse = "\n")
-  }
-  sprintf(">%s\n%s", name, str_seq)
-}
-
-
-##
-# Returns a subset of a pdb object's coord data.
-# Examples:
-#   selectRecords(pdb, resSeq = 1:10)
-#   selectRecords(pdb, element = "C", resSeq = c(20, 22:25))
-#   selectRecords(pdb, name = "P", resName = c("G", "C"), chainID = "A")
-##
-selectRecords = function(pdb, ...) {
-  l = eval(substitute(alist(...)))
-  l = lapply(l, function(x) if (is.character(x)) sprintf('"%s"', x) else x)
-  e = sapply(names(l), function(name) {
-    paste(c(name, "%in%", l[[name]]), collapse = " ")})
-  e = paste(e, collapse = " & ")
-  e = parse(text = e)
-  s = substitute(subset(pdb$coord, e))
-  eval(s)
-}
-
-
-##
-# Superimposes the mobile structure on the target structure.
-# Input:
-#   mobile - coord data of the mobile structure
-#   target_subset, mobile_subset - atom subsets to be aligned
-#     (subsets should be the same length and in the same order)
-# Output:
-#   coord data of the superimposed structure
-# Example:
-#   superimpose(pdb2$coord,
-#               selectRecords(pdb1, name = "P", resSeq = 1:10),
-#               selectRecords(pdb2, name = "P", resSeq = 2:11))
-##
-superimpose = function(mobile, target_subset, mobile_subset) {
-  # Extract XYZ coordinates from coord data
-  target_subset_xyz = target_subset[, 9:11]
-  mobile_xyz = mobile[, 9:11]
-  mobile_subset_xyz = mobile_subset[, 9:11]
-
-  # Center both atom subsets (move their centroids to [0, 0, 0])
-	target_centroid = apply(as.matrix(target_subset_xyz), 2, mean)
-  mobile_centroid = apply(as.matrix(mobile_subset_xyz), 2, mean)
-  coord0 = t(apply(target_subset_xyz, 1, `-`, target_centroid))
-  coord1 = t(apply(mobile_subset_xyz, 1, `-`, mobile_centroid))
-
-  # Calculate rotation matrix using Kabsch method
-  cov_matrix = t(coord0) %*% coord1
-  svd_ = svd(cov_matrix)
-  V = svd_$u
-  W = svd_$v
-  d = sign(det(W %*% t(V)))
-  m = matrix(0, 3, 3)
-  diag(m) = 1
-  m[3, 3] = d
-  U = W %*% m %*% t(V)
-
-  # Center all mobile atoms based on the *mobile subset* centroid
-  mobile_xyz_centered = t(apply(mobile_xyz, 1, `-`, mobile_centroid))
-  # Rotate all mobile atoms
-  mobile_xyz_rotated = t(apply(mobile_xyz_centered, 1, `%*%`, U))
-  # Move all mobile atoms to the *target subset* centroid
-  mobile_xyz_translated = t(apply(mobile_xyz_rotated, 1, `+`, target_centroid))
-
-  mobile[, 9:11] = mobile_xyz_translated
-  mobile
-}
-
