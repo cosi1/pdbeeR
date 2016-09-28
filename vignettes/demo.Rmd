@@ -1,0 +1,40 @@
+---
+title: "pdbeeR demonstration"
+author: "Paweł Piątkowski"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(pdbeeR)
+library(rgl)
+knitr::opts_chunk$set(echo = TRUE)
+knit_hooks$set(webgl = hook_webgl)
+```
+
+To demonstrate the capabilities of pdbeeR, we'll download a tRNA - tRNA synthetase complex from PDB (ID: 1EIY) and play with it.
+
+First, let's inspect the whole structure:
+
+``` {r, webgl=TRUE}
+pdb = read.pdb("https://files.rcsb.org/download/1EIY.pdb") # download file from RCSB
+coord = pdb$coord
+print(unique(coord$chainID)) # print all chain IDs
+showStructure(coord, color_by = "chainID")
+```
+
+Try to rotate the model (hold left mouse button and move the mouse) and zoom it (middle mouse button).
+
+Now, let's take a look at the tRNA alone:
+
+``` {r, webgl=TRUE}
+chainC_only = selectRecords(pdb, chainID = "C")
+seq = seqToFasta(getSequence(chainC_only), name = "tRNA-Phe")
+cat(seq)
+showStructure(chainC_only)
+```

@@ -27,7 +27,7 @@ superimpose = function(mobile, target_subset, mobile_subset) {
   mobile_subset_xyz = mobile_subset[, 9:11]
 
   # Center both atom subsets (move their centroids to [0, 0, 0])
-	target_centroid = apply(as.matrix(target_subset_xyz), 2, mean)
+  target_centroid = apply(as.matrix(target_subset_xyz), 2, mean)
   mobile_centroid = apply(as.matrix(mobile_subset_xyz), 2, mean)
   coord0 = t(apply(target_subset_xyz, 1, `-`, target_centroid))
   coord1 = t(apply(mobile_subset_xyz, 1, `-`, mobile_centroid))

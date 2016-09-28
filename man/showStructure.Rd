@@ -5,8 +5,8 @@
 \title{Show structure}
 \usage{
 showStructure(coord, color_table = DEFAULT_COLOR_TABLE,
-  color_other = "pink", type = "s", size = 1.2, box = FALSE,
-  axes = FALSE, xlab = "", ylab = "", zlab = "", ...)
+  color_other = "pink", color_by = "element", type = "s", size = 1.2,
+  box = FALSE, axes = FALSE, xlab = "", ylab = "", zlab = "", ...)
 }
 \arguments{
 \item{coord}{coordinate object (data frame)}
@@ -14,6 +14,8 @@ showStructure(coord, color_table = DEFAULT_COLOR_TABLE,
 \item{color_table}{list of colors associated with different atoms}
 
 \item{color_other}{color associated with atoms not found in color_table}
+
+\item{color_by}{name of the column used for coloring}
 
 \item{...}{any valid parameter for \link{plot3d}}
 }
