@@ -28,7 +28,7 @@ print(unique(coord$chainID)) # print all chain IDs
 showStructure(coord, color_by = "chainID")
 ```
 
-Try to rotate the model (hold left mouse button and move the mouse) and zoom it (middle mouse button).
+Try to rotate the model (hold left mouse button and move the mouse) and zoom it (scroll or move mouse while holding middle button).
 
 Now, let's take a look at the tRNA alone:
 
