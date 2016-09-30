@@ -10,7 +10,8 @@ Suggests:
     rgl,
     rglwidget,
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 License: MIT License
 Encoding: UTF-8
 LazyData: true

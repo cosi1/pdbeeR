@@ -4,18 +4,19 @@
 \alias{showStructure}
 \title{Show structure}
 \usage{
-showStructure(coord, color_table = DEFAULT_COLOR_TABLE,
-  color_other = "pink", color_by = "element", type = "s", size = 1.2,
-  box = FALSE, axes = FALSE, xlab = "", ylab = "", zlab = "", ...)
+showStructure(coord, color_by = "element", color_other = "pink",
+  color_table = if (color_by == "element") ELEMENT_COLOR_TABLE else
+  CHAIN_COLOR_TABLE, type = "s", size = 1.2, box = FALSE, axes = FALSE,
+  xlab = "", ylab = "", zlab = "", ...)
 }
 \arguments{
 \item{coord}{coordinate object (data frame)}
 
-\item{color_table}{list of colors associated with different atoms}
+\item{color_by}{name of the column used for coloring}
 
 \item{color_other}{color associated with atoms not found in color_table}
 
-\item{color_by}{name of the column used for coloring}
+\item{color_table}{list of colors associated with different atoms}
 
 \item{...}{any valid parameter for \link{plot3d}}
 }

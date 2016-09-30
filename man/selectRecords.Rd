@@ -4,10 +4,10 @@
 \alias{selectRecords}
 \title{Select records}
 \usage{
-selectRecords(pdb, ...)
+selectRecords(pdb_data, ...)
 }
 \arguments{
-\item{pdb}{pdb object}
+\item{pdb_data}{pdb or coordinate object}
 
 \item{...}{selection criteria (see Examples)}
 }

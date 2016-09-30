@@ -87,7 +87,7 @@ seqToFasta = function(sequence, name = "Sequence", wrapAt = 80) {
 #'
 #' Returns a subset of a pdb object's coord data.
 #'
-#' @param pdb pdb object
+#' @param pdb_data pdb or coordinate object
 #' @param ... selection criteria (see Examples)
 #' @return Coordinate object (data frame) containing the selected subset
 #' @examples
@@ -98,9 +98,13 @@ seqToFasta = function(sequence, name = "Sequence", wrapAt = 80) {
 #' }
 #' @export
 ##
-selectRecords = function(pdb, ...) {
-  if (class(pdb) != "pdb") {
-    stop("`pdb` must be a pdb object.")
+selectRecords = function(pdb_data, ...) {
+  if (class(pdb_data) == "pdb") {
+    coord = pdb_data$coord
+  } else if (class(pdb_data) == "data.frame") {
+    coord = pdb_data
+  } else {
+    stop("`pdb_data` must be a pdb or coordinate object.")
   }
   l = eval(substitute(alist(...)))
   l = lapply(l, function(x) if (is.character(x)) sprintf('"%s"', x) else x)
@@ -108,6 +112,6 @@ selectRecords = function(pdb, ...) {
     paste(c(name, "%in%", l[[name]]), collapse = " ")})
   e = paste(e, collapse = " & ")
   e = parse(text = e)
-  s = substitute(subset(pdb$coord, e))
+  s = substitute(subset(coord, e))
   eval(s)
 }

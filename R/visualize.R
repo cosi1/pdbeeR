@@ -9,13 +9,9 @@ ELEMENT_COLOR_TABLE = list(
 )
 
 # Default color table (coloring by chain name) for showStructure()
-CHAIN_COLOR_TABLE = list(
-  A = "red",
-  B = "green",
-  C = "blue",
-  D = "orange",
-  E = "grey"
-)
+dummy_ = 2:37
+names(dummy_) = c(LETTERS, 0:9)
+CHAIN_COLOR_TABLE = as.list(dummy_)
 
 
 ##
